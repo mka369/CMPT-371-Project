@@ -1,0 +1,1 @@
+## Define shared objects (e.g., items, players, etc.)
