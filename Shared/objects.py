@@ -1,1 +1,17 @@
 ## Define shared objects (e.g., items, players, etc.)
+from dataclasses import dataclass
+from typing import Tuple, Optional
+
+@dataclass
+class Gem:
+    id: int
+    position: Tuple[int, int]
+    owner_id: Optional[int] = None
+    is_collected: bool = False
+
+@dataclass
+class Player:
+    id: int
+    name: str
+    score: int = 0
+    base: Tuple[int, int, int, int] = (0, 0, 0, 0) # x, y, width, height
