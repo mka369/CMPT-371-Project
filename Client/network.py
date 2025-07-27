@@ -6,20 +6,28 @@ from shared.protocol import encode_message, decode_message
 from shared.constants import SERVER_PORT, SERVER_ADDRESS
 
 class NetworkClient():
-    ## Server waits for at least 3 clients to connect.
-    ## Server starts the game.
-    def __init__(self, SERVER_ADDRESS=SERVER_ADDRESS, SERVER_PORT=SERVER_PORT):
+    def __init__(self, host=SERVER_ADDRESS, port=SERVER_PORT):
         ## Initialize the network client with the server address.
-        pass
+        self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        self.sock.connect((host, port))
+        self.listener = threading.Thread(target=self.listen)
+        self.listener.start()
+        self.game_state = {}
 
     def send(self, data: dict):
         ## Send data to the server.
-        pass
+        self.sock.sendall(encode_message(data))
 
     def listen(self):
         ## Listen for incoming data from the server.
-        pass
+        while True:
+            try:
+                msg = self.sock.recv(4096)
+                if msg:
+                    self.game_state = decode_message(msg)
+            except:
+                break
 
     def get_game_state(self):
         ## Get the current game state from the server.
-        pass
+        return self.game_state
