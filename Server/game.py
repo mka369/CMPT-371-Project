@@ -8,10 +8,11 @@ class Game:
     def __init__(self):
         ## Initialize the game with players and gems.
         self.players = [
-            Player(id=1, name="Player1"),
-            Player(id=2, name="Player2"),
-            Player(id=3, name="Player3")
+            Player(id=1, name="Player1", base=(50, 400, 100, 100)),
+            Player(id=2, name="Player2", base=(200, 400, 100, 100)),
+            Player(id=3, name="Player3", base=(350, 400, 100, 100))
         ]
+
         self.gems = [
             Gem(id=0, position=(100, 100)),
             Gem(id=1, position=(200, 150)),
@@ -23,6 +24,13 @@ class Game:
     def start(self, clients):
         ## Start the game loop.
         print("[GAME] Game started.")
+        start_msg = encode_message({"type": "game_start"})
+        for client in clients:
+            try:
+                client.sendall(start_msg)
+            except:
+                print("[GAME] Failed to send game_start to client")
+
         start_time = time.time()
         duration = 30
 
@@ -39,7 +47,28 @@ class Game:
             if time.time() - start_time >= duration:
                 self.game_over = True
                 print("[GAME] Time's up. Game over.")
-    
+
+        winner = max(self.players, key=lambda p: p.score)
+        end_msg = encode_message({
+            "type": "game_end",
+            "winner": winner.name,
+            "score": winner.score
+        })
+        for client in clients:
+            try:
+                client.sendall(end_msg)
+            except:
+                print("[GAME] Failed to send game_end to a client")
+
+        time.sleep(5)
+
+        for client in clients:
+            try:
+                client.close()
+            except:
+                print("[GAME] Failed to close client cleanly")
+
+
     def process_input(self, player_id, action):
         ## Process player input and update game state.
         with self.game_lock:
@@ -52,6 +81,20 @@ class Game:
                             if player.id == player_id:
                                 player.score += 1
                                 break
+            elif action["type"] == "move":
+                for gem in self.gems:
+                    if gem.id == action["gem_id"] and gem.owner_id == player_id and not gem.is_collected:
+                        gem.position = tuple(action["position"])       
+                        
+                        for player in self.players:
+                            if player.id == player_id:
+                                px, py, pw, ph = player.base
+                                gx, gy = gem.position
+                                if px <= gx <= px + pw and py <= gy <= py + ph:
+                                    gem.is_collected = True
+                                    player.score += 1
+                                    break
+
     
     def get_state(self):
         ## Get the current game state.

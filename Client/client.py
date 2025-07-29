@@ -8,6 +8,8 @@ def main():
     screen = pygame.display.set_mode((800, 600))
     clock = pygame.time.Clock()
     client = NetworkClient()
+    client.on_message(lambda data: print("[UI] Got:", data))
+
 
     while True:
         for event in pygame.event.get():
