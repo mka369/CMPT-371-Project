@@ -13,6 +13,7 @@ class NetworkClient():
         self.listener = threading.Thread(target=self.listen)
         self.listener.start()
         self.game_state = {}
+        self.running = True
 
     def send(self, data: dict):
         ## Send data to the server.
@@ -20,9 +21,12 @@ class NetworkClient():
 
     def listen(self):
         ## Listen for incoming data from the server.
-        while True:
+        while self.running:
             try:
                 msg = self.sock.recv(4096)
+                if not msg:
+                    self.running = False
+                    break
                 if msg:
                     self.game_state = decode_message(msg)
             except:
@@ -31,3 +35,10 @@ class NetworkClient():
     def get_game_state(self):
         ## Get the current game state from the server.
         return self.game_state
+    
+    def close(self):
+        ## Shuts down connection
+        self.running = False
+        self.sock.shutdown(socket.SHUT_RDWR)
+        self.sock.close()
+        self.listener.join()

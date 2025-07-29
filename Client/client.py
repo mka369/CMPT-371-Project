@@ -15,6 +15,7 @@ def handle_event(event):
 
     if event.type == pygame.QUIT: ## User clicked the window's close button
         running = False
+        net.close()
         ## TODO: If connected to server, tell the server I'm quitting.
     
     elif event.type == pygame.MOUSEBUTTONDOWN: ## User started dragging
@@ -69,6 +70,7 @@ def main():
         pygame.display.flip()
         clock.tick(60) ## Limit the loop to run 60 times per second
 
+    net.close()
     pygame.quit()
 
 if __name__ == "__main__":
