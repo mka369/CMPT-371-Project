@@ -3,3 +3,5 @@ __pycache__/
 
 # Test file used for server side
 server/client_test.py
+
+.venv/

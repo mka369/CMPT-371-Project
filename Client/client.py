@@ -24,10 +24,18 @@ def handle_event(event):
             if clicked(mouse_pos, gem):
                 dragging = True
                 dragged_gem_id = gem['id']
+                mx, my = mouse_pos
+                gx, gy = gem['position']
+                offset_x = gx + mx
+                offset_y = gy + my
                 break
             
     elif event.type == pygame.MOUSEMOTION and dragging:
         ## TODO: Update the position change in real-time
+        mx, my = event.pos
+        moving_x = mx + offset_x
+        moving_y = my + offset_y
+        game_state['gems'][dragged_gem_id]['position'] = moving_x, moving_y
         pass
             
     elif event.type == pygame.MOUSEBUTTONUP:
