@@ -5,7 +5,7 @@ from typing import Tuple, Optional
 @dataclass
 class Gem:
     id: int
-    position: Tuple[int, int]
+    position: Tuple[int, int] = (300, 250)
     owner_id: Optional[int] = None
     is_collected: bool = False
 
