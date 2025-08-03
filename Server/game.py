@@ -100,8 +100,8 @@ class Game:
         ## Get the current game state.
         with self.game_lock:
             return {
+                'type': "game_playing" ## Updated (Aug 3)
                 'players': [player.to_dict() for player in self.players],
-                'gems': [gem.to_dict() for gem in self.gems],
-                'game_over': self.game_over
+                'gems': [gem.to_dict() for gem in self.gems]
             }
 game_lock = threading.Lock()

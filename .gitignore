@@ -2,4 +2,6 @@ __pycache__/
 *.pyc
 
 # Test file used for server side
-# server/client_test.py
+server/client_test.py
+
+.venv/
