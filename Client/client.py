@@ -18,6 +18,7 @@ def main():
     clock = pygame.time.Clock()
     running = True
     dragging = False
+    player_id = None
 
     ui = GameUI(screen)
     ## game_state = net.get_game_state()
@@ -36,7 +37,15 @@ def main():
 
                 if result == "start_game":
                     net = NetworkClient() ######################################
-                    net.on_message(lambda data: print("[UI] Got: ", data))
+                    def server_message_handle(data):
+                        nonlocal player_id, game_state
+                        print("[UI] Got: ", data)
+                        if data["type"] == "assign_id":
+                            player_id = data["player_id"]
+                        else:
+                            game_state = data
+                    net.on_message(server_message_handle)
+                    ##net.on_message(lambda data: print("[UI] Got: ", data))
                     game_state = net.get_game_state()
 
                     if game_state["type"] == "game_start":
@@ -54,8 +63,8 @@ def main():
                             dragged_gem_id = gem['id']
                             mx, my = mouse_pos
                             gx, gy = gem['position']
-                            offset_x = gx + mx
-                            offset_y = gy + my
+                            offset_x = gx - mx
+                            offset_y = gy - my
                             break
                 
                 elif result == "restart_game":
@@ -70,16 +79,26 @@ def main():
                 moving_x = mx + offset_x
                 moving_y = my + offset_y
                 game_state['gems'][dragged_gem_id]['position'] = moving_x, moving_y
+                if player_id is not None:
+                    net.send({
+                        'player_id': player_id,
+                        'action': {
+                            'type': 'move',
+                            'gem_id': dragged_gem_id,
+                            'position': (moving_x, moving_y)
+                        }
+                    })
                     
             elif event.type == pygame.MOUSEBUTTONUP:
                 if dragging:
                     dragging = False
                     drop_pos = pygame.mouse.get_pos()
-                    net.send({
-                        'player_id': 1, ## TODO: Read the ID properly
-                        'action': { 'type': "drag", 'gem_id': dragged_gem_id, 'final_pos': drop_pos }
-                    }) ## TODO: Send the action type, dragged gem's ID, and its final position.
-                    dragged_gem = None
+                    if player_id is not None:
+                        net.send({
+                            'player_id': player_id, ## TODO: Read the ID properly
+                            'action': { 'type': "drag", 'gem_id': dragged_gem_id, 'final_pos': drop_pos }
+                        }) ## TODO: Send the action type, dragged gem's ID, and its final position.
+                        dragged_gem = None
                 
         game_state = net.get_game_state()
         pygame.display.flip()
