@@ -23,11 +23,13 @@ class Player:
     name: str
     score: int = 0
     base: Tuple[int, int, int, int] = (0, 0, 0, 0) # x, y, width, height
+    has_quit = False
 
     def to_dict(self):
         return {
             "id": self.id,
             "name": self.name,
             "score": self.score,
-            "base": self.base
+            "base": self.base,
+            "has_quit": self.has_quit
         }
