@@ -28,8 +28,15 @@ def main():
         for event in pygame.event.get():
             if event.type == pygame.QUIT: ## User clicked the window's close button
                 running = False
+                net.send({
+                    'player_id': player_id,
+                    'action': {
+                        'type': 'quit',
+                        'gem_id': None,
+                        'position': None
+                    }
+                })
                 net.close()
-                ## TODO: If connected to server, tell the server I'm quitting.
     
             elif event.type == pygame.MOUSEBUTTONDOWN:
                 mouse_pos = pygame.mouse.get_pos()
@@ -48,11 +55,6 @@ def main():
                     ##net.on_message(lambda data: print("[UI] Got: ", data))
                     game_state = net.get_game_state()
 
-                    if game_state["type"] == "game_start":
-                        ui.draw_game_screen()
-                    else:
-                        ## TODO: Show the loading window until the game starts.
-                        pass
                 
                 elif result == "play_game":
                     ui.draw_game_screen(game_state)
@@ -69,6 +71,7 @@ def main():
                 
                 elif result == "restart_game":
                     ## TODO: Go back to establishing connection.
+                    pass
                 
                 elif result == "quit_to_main":
                     ui.draw_main_screen()
@@ -99,7 +102,12 @@ def main():
                             'action': { 'type': "drag", 'gem_id': dragged_gem_id, 'final_pos': drop_pos }
                         }) ## TODO: Send the action type, dragged gem's ID, and its final position.
                         dragged_gem = None
-                
+        
+        if game_state["type"] == "game_start":
+            ui.draw_game_screen()
+        else:
+            ui.draw_loading_screen()
+        
         game_state = net.get_game_state()
         pygame.display.flip()
         clock.tick(60) ## Limit the loop to run 60 times per second

@@ -46,6 +46,11 @@ class GameUI:
         self.screen.blit(title, (270, 150))
         self.start_button.draw(self.screen)
     
+    def draw_loading_screen(self):
+        self.screen.fill(WHITE)
+        loading_msg = FONT.render("Loading...", True, BLACK)
+        self.screen.blit(loading_msg, (300, 250))
+
     def draw_game_screen(self, game_state):
         self.screen.fill(WHITE)
 
