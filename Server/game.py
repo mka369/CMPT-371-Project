@@ -72,13 +72,14 @@ class Game:
     def process_input(self, player_id, action):
         ## Process player input and update game state.
         with self.game_lock:
+            action_type = action.get("type")
+
             if action["type"] == "quit":
                 for player in self.players:
                     if player.id == player_id:
                         player.has_quit = True
                         print(f"[GAME] Player {player_id} quit the game.")
                         break
-                ## TODO: close client socket
                 return
 
             if action["type"] == "drag":
@@ -90,6 +91,7 @@ class Game:
                             if player.id == player_id:
                                 player.score += 1
                                 break
+
             elif action["type"] == "move":
                 for gem in self.gems:
                     if gem.id == action["gem_id"] and gem.owner_id == player_id and not gem.is_collected:
@@ -103,17 +105,13 @@ class Game:
                                     gem.is_collected = True
                                     player.score += 1
                                     break
-
-
-
-
     
     def get_state(self):
         ## Get the current game state.
         with self.game_lock:
             return {
-                'type': "game_playing", ## Updated (Aug 3)
+                'type': "state_update", ## Updated (Aug 3)
                 'players': [player.to_dict() for player in self.players],
-                'gems': [gem.to_dict() for gem in self.gems]
+                'gems': [gem.to_dict() for gem in self.gems],
+                'game_over': self.game_over
             }
-game_lock = threading.Lock()
