@@ -47,13 +47,13 @@ class GameUI:
         title = FONT.render("Welcome to Gem Grab!", True, BLACK) ## Game title?
         self.screen.blit(title, (270, 150))
         self.start_button.draw(self.screen)
-
         pygame.display.flip()
     
     def draw_loading_screen(self):
         self.screen.fill(WHITE)
         loading_msg = FONT.render("Loading...", True, BLACK)
         self.screen.blit(loading_msg, (300, 250))
+        pygame.display.flip()
 
     def draw_game_screen(self, game_state):
         self.screen.fill(WHITE)
@@ -83,6 +83,8 @@ class GameUI:
             remaining = max(0, self.duration - elapsed)
             timer = FONT.render(f"Time left: {remaining}s", True, BLACK)
             self.screen.blit(timer, (20, 20))
+        
+        pygame.display.flip()
 
     def draw_end_screen(self, winner_ids):
         self.screen.fill(WHITE)
@@ -95,6 +97,7 @@ class GameUI:
         self.screen.blit(result, (300, 200))
         self.restart_button.draw(self.screen)
         self.quit_button.draw(self.screen)
+        pygame.display.flip()
     
     def render(self, game_state = None, winner_ids = None):
         if self.state == "main":
@@ -103,8 +106,6 @@ class GameUI:
             self.draw_game_screen(game_state)
         elif self.state == "end":
             self.draw_end_screen(winner_ids)
-        
-        pygame.display.flip()
 
     def button_click(self, mouse_pos):
         if self.state == "main":
