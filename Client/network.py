@@ -18,7 +18,7 @@ class NetworkClient():
         self.running = True
 
         ## For fetching game_states one-by-one when multiple messages are received at once.
-        self.game_states = {} ## dictionary of game_state dictionaries
+        self.game_states = [] ## list of game_state dictionaries
         self.listeners = []
         self.count = 0
 
@@ -33,12 +33,20 @@ class NetworkClient():
         buffer = b""
         while self.running:
             try:
+                print("[NETWORK] Listening for messages...")
                 msg = self.sock.recv(4096)
                 if not msg:
                     self.running = False
                 else:
                     buffer += msg
-                    game_states = decode_many(buffer)
+                    messages = decode_many(buffer)
+                    for message in messages:
+                        print("[NETWORK] Received message:", message)
+                        self.game_states.append(message)
+                        '''
+                        for callback in self.listeners:
+                            callback(message)
+                        '''
                     '''
                     for message in game_states:
                         self.count += 1
@@ -54,7 +62,7 @@ class NetworkClient():
         ## Get the current game state from the server.
         ## TODO: Dequeue properly.
         if not self.game_states:
-            print("[NETWORK] No game states available.")
+            ##print("[NETWORK] No game states available.")
             return None
         game_state = self.game_states.pop(0)
         '''

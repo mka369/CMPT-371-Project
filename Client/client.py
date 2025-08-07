@@ -51,7 +51,7 @@ def main():
                 player_id = game_state["player_id"]
 
             elif game_state["type"] == "game_start":
-                ui.draw_game_screen()
+                ui.draw_game_screen(game_state)
             ## TODO: Handle the rest types.
             
         for event in pygame.event.get():
@@ -121,7 +121,7 @@ def main():
                         dragged_gem = None
             
         if game_state["type"] == "game_start":
-            ui.draw_game_screen()
+            ui.draw_game_screen(game_state)
         else:
             ui.draw_loading_screen()
         
