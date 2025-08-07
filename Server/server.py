@@ -19,6 +19,12 @@ def handle_client(client_socket, game, player_id):
     
     while True:
         try:
+            for player in game.players:
+                if player.id == player_id and player.has_quit:
+                    print(f"[SERVER] Player {player_id} has quit. Closing connection.")
+                    client_socket.close()
+                    return
+        
             message = client_socket.recv(1024)
             if not message:
                 break
