@@ -1,6 +1,6 @@
 ## Draw UI elements
 import pygame
-from shared.constants import GEM_RADIUS
+##from shared.constants import GEM_RADIUS
 
 WHITE = (255, 255, 255)
 BLACK = (0, 0, 0)
@@ -39,12 +39,16 @@ class GameUI:
         self.start_button = Button("Start Game", (300, 250), (200, 60))
         self.restart_button = Button("Restart", (250, 300), (150, 50))
         self.quit_button = Button("Quit", (420, 300), (150, 50))
+
+        self.draw_main_screen()
     
     def draw_main_screen(self):
         self.screen.fill(WHITE)
         title = FONT.render("Welcome to Gem Grab!", True, BLACK) ## Game title?
         self.screen.blit(title, (270, 150))
         self.start_button.draw(self.screen)
+
+        pygame.display.flip()
     
     def draw_loading_screen(self):
         self.screen.fill(WHITE)
@@ -58,7 +62,7 @@ class GameUI:
         for gem in game_state.get("gems", []):
             x, y = gem["position"]
             color = RED if gem["is_collected"] else BLUE
-            pygame.draw.circle(self.screen, color, (x, y), GEM_RADIUS)
+            pygame.draw.circle(self.screen, color, (x, y), 20) #############GEM_RADIUS
         
         ## Draw player bases.
         ## TODO: Read positions directly from player['base']

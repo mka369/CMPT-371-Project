@@ -44,6 +44,7 @@ def main():
         game_state = net.get_game_state()
         if game_state is None:
             ui.draw_loading_screen()
+            continue
         else:
             ui.render(game_state, winner_ids)
             if game_state["type"] == "assign_id":

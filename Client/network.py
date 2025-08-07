@@ -53,6 +53,8 @@ class NetworkClient():
     def get_game_state(self):
         ## Get the current game state from the server.
         ## TODO: Dequeue properly.
+        if not self.game_states:
+            return None
         game_state = self.game_states.pop(0)
         '''
         index = 0
@@ -63,10 +65,10 @@ class NetworkClient():
             game_state = None
         '''
         return game_state
-    '''
+    
     def on_message(self, callback):
         self.listeners.append(callback)
-    '''
+    
     def close(self):
         ## Shut down connection.
         self.running = False
