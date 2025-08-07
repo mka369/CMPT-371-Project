@@ -21,10 +21,8 @@ class NetworkClient():
         self.game_states = {} ## dictionary of game_state dictionaries
         self.listeners = []
         self.count = 0
-        self.index = 0
 
         threading.Thread(target=self.listen, daemon=True).start()
-
 
     def send(self, data: dict):
         ## Send data to the server.
@@ -41,12 +39,12 @@ class NetworkClient():
                 else:
                     buffer += msg
                     game_states = decode_many(buffer)
-                    count = 0
-                    index = 0
+                    '''
                     for message in game_states:
-                        count += 1
+                        self.count += 1
                         for callback in self.listeners:
                             callback(message)
+                    '''
                     buffer = b""
             except Exception as e:
                 print(f"[NETWORK] Error: {e}")
@@ -54,16 +52,21 @@ class NetworkClient():
 
     def get_game_state(self):
         ## Get the current game state from the server.
-        if index < (count - 1):
-            game_state = game_states[index]
+        ## TODO: Dequeue properly.
+        game_state = self.game_states.pop(0)
+        '''
+        index = 0
+        if index < (self.count - 1):
+            game_state = self.game_states[index]
             index += 1
         else:
             game_state = None
+        '''
         return game_state
-    
+    '''
     def on_message(self, callback):
         self.listeners.append(callback)
-    
+    '''
     def close(self):
         ## Shut down connection.
         self.running = False

@@ -78,9 +78,9 @@ class GameUI:
             elapsed = int(pygame.time.get_ticks() / 1000 - self.clock_start)
             remaining = max(0, self.duration - elapsed)
             timer = FONT.render(f"Time left: {remaining}s", True, BLACK)
-            self.screen_blit(timer, (20, 20))
+            self.screen.blit(timer, (20, 20))
 
-    def draw_end_screen(winner):
+    def draw_end_screen(self, winner_ids):
         self.screen.fill(WHITE)
         if winner_ids:
             names = ", ".join([f"P{id}" for id in winner_ids])
@@ -113,11 +113,13 @@ class GameUI:
             return "play_game"
         
         elif self.state == "end":
+            '''
             if self.restart_button.is_clicked(mouse_pos):
                 self.state = "game"
                 self.clock_start = pygame.time.get_ticks() / 1000
                 return "restart_game"
-            elif self.quit_button.is_clicked(mouse_pos):
+            '''
+            if self.quit_button.is_clicked(mouse_pos):
                 self.state = "main"
                 return "quit_to_main"
 

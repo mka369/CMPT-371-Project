@@ -16,7 +16,7 @@ def main():
     ## net = NetworkClient()
     ## net.on_message(lambda data: print("[UI] Got: ", data))
     clock = pygame.time.Clock()
-    running = True
+    running = False
     dragging = False
     player_id = None
 
@@ -24,7 +24,35 @@ def main():
     ## game_state = net.get_game_state()
     game_state = None ######################################
 
+    while not running:
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    break
+
+                elif event.type == pygame.MOUSEBUTTONDOWN:
+                    mouse_pos = pygame.mouse.get_pos()
+                    result = ui.button_click(mouse_pos)
+                    if result == "start_game":
+                        running = True
+                        ui.state = "loading"
+                        ui.draw_loading_screen()
+
+    net = NetworkClient()
+    winner_ids = [] ################################
+
     while running:
+        game_state = net.get_game_state()
+        if game_state is None:
+            ui.draw_loading_screen()
+        else:
+            ui.render(game_state, winner_ids)
+            if game_state["type"] == "assign_id":
+                player_id = game_state["player_id"]
+
+            elif game_state["type"] == "game_start":
+                ui.draw_game_screen()
+            ## TODO: Handle the rest types.
+            
         for event in pygame.event.get():
             if event.type == pygame.QUIT: ## User clicked the window's close button
                 running = False
@@ -37,26 +65,12 @@ def main():
                     }
                 })
                 net.close()
-    
+        
             elif event.type == pygame.MOUSEBUTTONDOWN:
                 mouse_pos = pygame.mouse.get_pos()
                 result = ui.button_click(mouse_pos)
 
-                if result == "start_game":
-                    net = NetworkClient() ######################################
-                    def server_message_handle(data):
-                        nonlocal player_id, game_state
-                        print("[UI] Got: ", data)
-                        if data["type"] == "assign_id":
-                            player_id = data["player_id"]
-                        else:
-                            game_state = data
-                    net.on_message(server_message_handle)
-                    ##net.on_message(lambda data: print("[UI] Got: ", data))
-                    game_state = net.get_game_state()
-
-                
-                elif result == "play_game":
+                if result == "play_game":
                     ui.draw_game_screen(game_state)
 
                     for gem in game_state['gems']:
@@ -69,12 +83,14 @@ def main():
                             offset_y = gy - my
                             break
                 
+                elif result == "quit_to_main":
+                    ui.draw_main_screen()
+
+                '''
                 elif result == "restart_game":
                     ## TODO: Go back to establishing connection.
                     pass
-                
-                elif result == "quit_to_main":
-                    ui.draw_main_screen()
+                '''
             
             elif event.type == pygame.MOUSEMOTION and dragging:
                 ## TODO: Update the position change in real-time
@@ -91,24 +107,23 @@ def main():
                             'position': (moving_x, moving_y)
                         }
                     })
-                    
+                        
             elif event.type == pygame.MOUSEBUTTONUP:
                 if dragging:
                     dragging = False
                     drop_pos = pygame.mouse.get_pos()
                     if player_id is not None:
                         net.send({
-                            'player_id': player_id, ## TODO: Read the ID properly
-                            'action': { 'type': "drag", 'gem_id': dragged_gem_id, 'final_pos': drop_pos }
+                            'player_id': player_id,
+                            'action': { 'type': "move", 'gem_id': dragged_gem_id, 'final_pos': drop_pos }
                         }) ## TODO: Send the action type, dragged gem's ID, and its final position.
                         dragged_gem = None
-        
+            
         if game_state["type"] == "game_start":
             ui.draw_game_screen()
         else:
             ui.draw_loading_screen()
         
-        game_state = net.get_game_state()
         pygame.display.flip()
         clock.tick(60) ## Limit the loop to run 60 times per second
 
