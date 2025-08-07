@@ -5,3 +5,4 @@ __pycache__/
 server/client_test.py
 
 .venv/
+.DS_Store

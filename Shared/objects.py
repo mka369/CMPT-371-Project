@@ -1,5 +1,5 @@
 ## Define shared objects (e.g., items, players, etc.)
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import Tuple, Optional
 
 @dataclass
@@ -23,11 +23,13 @@ class Player:
     name: str
     score: int = 0
     base: Tuple[int, int, int, int] = (0, 0, 0, 0) # x, y, width, height
+    has_quit = bool = field(default=False)
 
     def to_dict(self):
         return {
             "id": self.id,
             "name": self.name,
             "score": self.score,
-            "base": self.base
+            "base": self.base,
+            "has_quit": self.has_quit
         }
