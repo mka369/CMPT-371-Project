@@ -39,8 +39,12 @@ def main():
     net = NetworkClient()
     winner_ids = [] ################################
 
+    counter = 0
     while running:
-        game_state = net.get_game_state()
+        if counter > 30:
+            game_state = net.get_game_state()
+            counter = 0
+        counter += 1
 
         if game_state is not None:
             if game_state["type"] == "assign_id":
@@ -83,6 +87,14 @@ def main():
                             offset_x = gx - mx
                             offset_y = gy - my
                             break
+                    if player_id is not None:
+                        net.send({
+                            'player_id': player_id,
+                            'action': {
+                                'type': 'drag',
+                                'gem_id': dragged_gem_id
+                            }
+                        })
                 
                 elif ui.quit_button.is_clicked(mouse_pos):
                     ui.state = "main"
@@ -116,11 +128,15 @@ def main():
                     if player_id is not None:
                         net.send({
                             'player_id': player_id,
-                            'action': { 'type': "move", 'gem_id': dragged_gem_id, 'final_pos': drop_pos }
+                            'action': {
+                                'type': "drop",
+                                'gem_id': dragged_gem_id,
+                                'final_pos': drop_pos
+                            }
                         })
         
         pygame.display.flip()
-        clock.tick(2) ## Limit the loop to run 60 times per second
+        clock.tick(60) ## Limit the loop to run 60 times per second
 
     net.close()
     pygame.quit()

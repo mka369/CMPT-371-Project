@@ -65,17 +65,11 @@ class GameUI:
             pygame.draw.circle(self.screen, color, (x, y), 20) #############GEM_RADIUS
         
         ## Draw player bases.
-        ## TODO: Read positions directly from player['base']
-        base_positions = {
-            1: (100, 500),
-            2: (300, 500),
-            3: (500, 500)
-        }
         for player in game_state.get("players", []):
-            base_x, base_y = base_positions.get(player["id"], (0, 0))
-            pygame.draw.rect(self.screen, GREEN, (base_x, base_y, 80, 80))
+            x, y, w, h = player["base"]
+            pygame.draw.rect(self.screen, GREEN, (x, y, w, h))
             label = FONT.render(f"P{player['id']}: {player['score']}", True, BLACK)
-            self.screen.blit(label, (base_x, base_y - 30))
+            self.screen.blit(label, (x, y - 30))
         
         ## Draw clock.
         if self.clock_start:

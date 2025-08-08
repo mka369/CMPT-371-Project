@@ -16,8 +16,11 @@ class Game:
         self.gems = [
             Gem(id=0, position=(100, 100)),
             Gem(id=1, position=(200, 150)),
-            Gem(id=2, position=(300, 200))
-        ]
+            Gem(id=2, position=(300, 200)),
+            Gem(id=3, position=(480, 180)),
+            Gem(id=4, position=(410, 210)),
+            Gem(id=5, position=(600, 350))
+            ]
         self.game_over = False
         self.game_lock = threading.Lock()
 
@@ -84,13 +87,10 @@ class Game:
 
             if action["type"] == "drag":
                 for gem in self.gems:
-                    if gem.id == action["gem_id"] and not gem.is_collected:
+                    if gem.id == action["gem_id"] and gem.owner_id is None:
                         gem.is_collected = True
                         gem.owner_id = player_id
-                        for player in self.players:
-                            if player.id == player_id:
-                                player.score += 1
-                                break
+                        break
 
             elif action["type"] == "move":
                 for gem in self.gems:
@@ -105,6 +105,24 @@ class Game:
                                     gem.is_collected = True
                                     player.score += 1
                                     break
+
+            elif action["type"] == "drop":
+                for gem in self.gems:
+                    if gem.id == action["gem_id"] and gem.owner_id == player_id and not gem.is_collected:
+                        gem.position = tuple(action["drop_pos"])
+                        
+                        for player in self.players: ## Allow player to drop gems in other players' bases.
+                            px, py, pw, ph = player.base
+                            gx, gy = gem.position
+                            if px <= gx <= px + pw and py <= gy <= py + ph:
+                                gem.is_collected = True
+                                player.score += 1
+                                break
+
+                        ## Reset gem if not dropped in a base.
+                        if not gem.is_collected:
+                            gem.owner_id = None
+                            break
     
     def get_state(self):
         ## Get the current game state.
