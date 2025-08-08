@@ -27,6 +27,7 @@ class NetworkClient():
     def send(self, data: dict):
         ## Send data to the server.
         self.sock.sendall(encode_message(data))
+        print("[NETWORK] Sent data:", data)
 
     def listen(self):
         ## Listen for incoming data from the server.
@@ -62,10 +63,8 @@ class NetworkClient():
         ## Get the current game state from the server.
         ## TODO: Dequeue properly.
         if not self.game_states:
-            print("[NETWORK] No game state available.")
             return None
         game_state = self.game_states.pop(0)
-        print("[NETWORK] Returning game state.")
         '''
         index = 0
         if index < (self.count - 1):

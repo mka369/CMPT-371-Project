@@ -36,9 +36,9 @@ class GameUI:
         self.clock_start = None
         self.duration = 30
 
-        self.start_button = Button("Start Game", (300, 250), (200, 60))
-        self.restart_button = Button("Restart", (250, 300), (150, 50))
-        self.quit_button = Button("Quit", (420, 300), (150, 50))
+        self.start_button = Button("Start Game", (280, 250), (200, 60))
+        ## self.restart_button = Button("Restart", (250, 300), (150, 50))
+        self.quit_button = Button("Quit", (320, 300), (150, 50))
 
         self.draw_main_screen()
     
@@ -62,8 +62,8 @@ class GameUI:
         for gem in game_state.get("gems", []):
             x, y = gem["position"]
             color = RED if gem["is_collected"] else BLUE
-            pygame.draw.circle(self.screen, color, (x, y), 20) #############GEM_RADIUS
-        
+            pygame.draw.circle(self.screen, color, (x, y), 20) ######### ## GEM_RADIUS
+
         ## Draw player bases.
         for player in game_state.get("players", []):
             x, y, w, h = player["base"]
@@ -88,8 +88,8 @@ class GameUI:
         else:
             text = "Game Over!"
         result = FONT.render(text, True, BLACK)
-        self.screen.blit(result, (300, 200))
-        self.restart_button.draw(self.screen)
+        self.screen.blit(result, (330, 200))
+        ## self.restart_button.draw(self.screen)
         self.quit_button.draw(self.screen)
         pygame.display.flip()
     

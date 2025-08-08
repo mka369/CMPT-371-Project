@@ -23,7 +23,7 @@ class Player:
     name: str
     score: int = 0
     base: Tuple[int, int, int, int] = (0, 0, 0, 0) # x, y, width, height
-    has_quit = bool = field(default=False)
+    has_quit: bool = field(default=False)
 
     def to_dict(self):
         return {
