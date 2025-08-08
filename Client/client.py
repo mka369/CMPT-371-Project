@@ -119,7 +119,7 @@ def main():
                     moving_x = mx + offset_x
                     moving_y = my + offset_y
                     ##game_state['gems'][dragged_gem_id]['position'] = moving_x, moving_y
-                    if player_id is not None and counter % 10 == 0:
+                    if player_id is not None and counter % 7 == 0:
                         net.send({
                             'player_id': player_id,
                             'action': {

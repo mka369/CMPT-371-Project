@@ -19,7 +19,11 @@ class Game:
             Gem(id=2, position=(300, 200)),
             Gem(id=3, position=(480, 180)),
             Gem(id=4, position=(410, 210)),
-            Gem(id=5, position=(600, 350))
+            Gem(id=5, position=(600, 300)),
+            Gem(id=6, position=(550, 110)),
+            Gem(id=7, position=(580, 200)),
+            Gem(id=8, position=(460, 150)),
+            Gem(id=9, position=(620, 250))
             ]
         self.game_over = False
         self.game_lock = threading.Lock()

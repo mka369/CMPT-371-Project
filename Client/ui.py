@@ -62,7 +62,7 @@ class GameUI:
         for gem in game_state.get("gems", []):
             x, y = gem["position"]
             color = RED if gem["is_collected"] else BLUE
-            pygame.draw.circle(self.screen, color, (x, y), 20) ######### ## GEM_RADIUS
+            pygame.draw.circle(self.screen, color, (x, y), 10) ######### ## GEM_RADIUS
 
         ## Draw player bases.
         for player in game_state.get("players", []):
