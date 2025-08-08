@@ -22,7 +22,8 @@ class NetworkClient():
         self.listeners = []
         self.count = 0
 
-        threading.Thread(target=self.listen, daemon=True).start()
+        listener = threading.Thread(target=self.listen, daemon=True)
+        listener.start()
 
     def send(self, data: dict):
         ## Send data to the server.
@@ -61,7 +62,6 @@ class NetworkClient():
 
     def get_game_state(self):
         ## Get the current game state from the server.
-        ## TODO: Dequeue properly.
         if not self.game_states:
             return None
         game_state = self.game_states.pop(0)
@@ -81,6 +81,8 @@ class NetworkClient():
     def close(self):
         ## Shut down connection.
         self.running = False
+        self.listener.join()
         self.sock.shutdown(socket.SHUT_RDWR)
         self.sock.close()
-        self.listener.join()
+        print("[NETWORK] Connection closed.")
+        ## self.listener.join()

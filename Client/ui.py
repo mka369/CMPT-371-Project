@@ -44,7 +44,7 @@ class GameUI:
     
     def draw_main_screen(self):
         self.screen.fill(WHITE)
-        title = FONT.render("Welcome to Gem Grab!", True, BLACK) ## Game title?
+        title = FONT.render("Welcome to Gem Grab!", True, BLACK)
         self.screen.blit(title, (270, 150))
         self.start_button.draw(self.screen)
         pygame.display.flip()
@@ -55,19 +55,20 @@ class GameUI:
         self.screen.blit(loading_msg, (300, 250))
         pygame.display.flip()
 
-    def draw_game_screen(self, game_state):
+    def draw_game_screen(self, game_state, player_id):
         self.screen.fill(WHITE)
 
         ## Draw gems.
         for gem in game_state.get("gems", []):
             x, y = gem["position"]
             color = RED if gem["is_collected"] else BLUE
-            pygame.draw.circle(self.screen, color, (x, y), 10) ######### ## GEM_RADIUS
+            pygame.draw.circle(self.screen, color, (x, y), 10) ########### GEM_RADIUS
 
         ## Draw player bases.
         for player in game_state.get("players", []):
+            base_color = GREEN if player["id"] == player_id else GRAY
             x, y, w, h = player["base"]
-            pygame.draw.rect(self.screen, GREEN, (x, y, w, h))
+            pygame.draw.rect(self.screen, base_color, (x, y, w, h))
             label = FONT.render(f"P{player['id']}: {player['score']}", True, BLACK)
             self.screen.blit(label, (x, y - 30))
         
@@ -89,17 +90,16 @@ class GameUI:
             text = "Game Over!"
         result = FONT.render(text, True, BLACK)
         self.screen.blit(result, (330, 200))
-        ## self.restart_button.draw(self.screen)
         self.quit_button.draw(self.screen)
         pygame.display.flip()
     
-    def render(self, game_state = None, winner_ids = None):
+    def render(self, game_state = None, player_id = None, winner_ids = None):
         if self.state == "main":
             self.draw_main_screen()
         elif self.state == "loading":
             self.draw_loading_screen()
         elif self.state == "game":
-            self.draw_game_screen(game_state)
+            self.draw_game_screen(game_state, player_id)
         elif self.state == "end":
             self.draw_end_screen(winner_ids)
 

@@ -1,6 +1,6 @@
 ## Run the GUI and handle user input
 import pygame
-from ui import Button, GameUI
+from ui import GameUI
 from network import NetworkClient
 from shared.constants import GEM_RADIUS
 
@@ -13,8 +13,6 @@ def gem_clicked(mouse_pos, gem):
 def main():
     pygame.init()
     screen = pygame.display.set_mode((800, 600))
-    ## net = NetworkClient()
-    ## net.on_message(lambda data: print("[UI] Got: ", data))
     clock = pygame.time.Clock()
     quitting = False
     running = False
@@ -22,8 +20,7 @@ def main():
     player_id = None
 
     ui = GameUI(screen)
-    ## game_state = net.get_game_state()
-    game_state = None ######################################
+    game_state = None
 
     while not quitting:
         while not running:
@@ -41,9 +38,12 @@ def main():
                     
                     elif ui.quit_button.is_clicked(mouse_pos):
                         ui.state = "main"
-    
+
+        if quitting:
+            break
+
         net = NetworkClient()
-        winner_ids = [] ################################
+        winner_ids = []
 
         counter = 0
         while running:
@@ -62,10 +62,10 @@ def main():
                 
                 elif game_state["type"] == "game_end":
                     ui.state = "end"
-                    winner_ids = game_state.get("winner_ids", [])
+                    winner_ids = game_state.get("winner", [])
                     running = False
-            
-            ui.render(game_state, winner_ids)
+                
+                ui.render(game_state, player_id, winner_ids)
             '''
             dragged_gem_id = None
             offset_x = 0
@@ -74,6 +74,7 @@ def main():
             for event in pygame.event.get():
                 if event.type == pygame.QUIT: ## User clicked the window's close button
                     running = False
+                    quitting = True
                     net.send({
                         'player_id': player_id,
                         'action': {
@@ -82,7 +83,6 @@ def main():
                             'position': None
                         }
                     })
-                    net.close()
             
                 elif event.type == pygame.MOUSEBUTTONDOWN:
                     mouse_pos = pygame.mouse.get_pos()
@@ -114,7 +114,6 @@ def main():
                     '''
                 
                 elif event.type == pygame.MOUSEMOTION and dragging:
-                    ## TODO: Update the position change in real-time
                     mx, my = event.pos
                     moving_x = mx + offset_x
                     moving_y = my + offset_y
@@ -146,7 +145,7 @@ def main():
             pygame.display.flip()
             clock.tick(60) ## Limit the loop to run 60 times per second
 
-    net.close()
+        net.close()
     pygame.quit()
 
 if __name__ == "__main__":
