@@ -102,6 +102,8 @@ class GameUI:
     def render(self, game_state = None, winner_ids = None):
         if self.state == "main":
             self.draw_main_screen()
+        elif self.state == "loading":
+            self.draw_loading_screen()
         elif self.state == "game":
             self.draw_game_screen(game_state)
         elif self.state == "end":

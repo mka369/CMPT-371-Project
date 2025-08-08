@@ -31,29 +31,31 @@ def main():
 
                 elif event.type == pygame.MOUSEBUTTONDOWN:
                     mouse_pos = pygame.mouse.get_pos()
-                    result = ui.button_click(mouse_pos)
-                    if result == "start_game":
+                    if ui.start_button.is_clicked(mouse_pos):
                         running = True
                         ui.state = "loading"
-                        ui.draw_loading_screen()
-
+                        ui.render()
+    
     net = NetworkClient()
     winner_ids = [] ################################
 
     while running:
         game_state = net.get_game_state()
-        if game_state is None:
-            ui.draw_loading_screen()
-            continue
-        else:
-            ui.render(game_state, winner_ids)
+
+        if game_state is not None:
             if game_state["type"] == "assign_id":
                 player_id = game_state["player_id"]
 
             elif game_state["type"] == "game_start":
-                ui.draw_game_screen(game_state)
-            ## TODO: Handle the rest types.
+                ui.state = "game"
+                ui.clock_start = pygame.time.get_ticks() / 1000
             
+            elif game_state["type"] == "game_end":
+                ui.state = "end"
+                winner_ids = game_state.get("winner_ids", [])
+        
+        ui.render(game_state, winner_ids)
+
         for event in pygame.event.get():
             if event.type == pygame.QUIT: ## User clicked the window's close button
                 running = False
@@ -71,9 +73,7 @@ def main():
                 mouse_pos = pygame.mouse.get_pos()
                 result = ui.button_click(mouse_pos)
 
-                if result == "play_game":
-                    ui.draw_game_screen(game_state)
-
+                if ui.state == "game":
                     for gem in game_state['gems']:
                         if gem_clicked(mouse_pos, gem):
                             dragging = True
@@ -84,8 +84,8 @@ def main():
                             offset_y = gy - my
                             break
                 
-                elif result == "quit_to_main":
-                    ui.draw_main_screen()
+                elif ui.quit_button.is_clicked(mouse_pos):
+                    ui.state = "main"
 
                 '''
                 elif result == "restart_game":
@@ -117,16 +117,10 @@ def main():
                         net.send({
                             'player_id': player_id,
                             'action': { 'type': "move", 'gem_id': dragged_gem_id, 'final_pos': drop_pos }
-                        }) ## TODO: Send the action type, dragged gem's ID, and its final position.
-                        dragged_gem = None
-            
-        if game_state["type"] == "game_start":
-            ui.draw_game_screen(game_state)
-        else:
-            ui.draw_loading_screen()
+                        })
         
         pygame.display.flip()
-        clock.tick(60) ## Limit the loop to run 60 times per second
+        clock.tick(2) ## Limit the loop to run 60 times per second
 
     net.close()
     pygame.quit()

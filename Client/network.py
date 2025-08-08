@@ -62,9 +62,10 @@ class NetworkClient():
         ## Get the current game state from the server.
         ## TODO: Dequeue properly.
         if not self.game_states:
-            ##print("[NETWORK] No game states available.")
+            print("[NETWORK] No game state available.")
             return None
         game_state = self.game_states.pop(0)
+        print("[NETWORK] Returning game state.")
         '''
         index = 0
         if index < (self.count - 1):
