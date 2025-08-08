@@ -86,10 +86,9 @@ class Game:
                 return
 
             if action["type"] == "drag":
-                print(f"[GAME] Player {player_id} dragging gem {action['gem_id']} at {action['position']}")
+                print(f"[GAME] Player {player_id} dragging gem {action['gem_id']}")
                 for gem in self.gems:
                     if gem.id == action["gem_id"] and gem.owner_id is None:
-                        gem.is_collected = True
                         gem.owner_id = player_id
                         break
 
