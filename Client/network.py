@@ -14,6 +14,13 @@ class NetworkClient():
         ## TODO: Make sure we don't have any unnecessary fields.
 
         self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+
+        try:
+            self.sock.setsockopt(socket.IPPROTO_TCP, socket.TCP_NODELAY, 1)
+        except Exception:
+            pass
+
+        self.sock.settimeout(0.5)
         self.sock.connect((host, port))
         self.running = True
 
@@ -22,13 +29,17 @@ class NetworkClient():
         self.listeners = []
         self.count = 0
 
-        listener = threading.Thread(target=self.listen, daemon=True)
-        listener.start()
+        self.listener = threading.Thread(target=self.listen, daemon=True)
+        self.listener.start()
 
     def send(self, data: dict):
         ## Send data to the server.
-        self.sock.sendall(encode_message(data))
-        print("[NETWORK] Sent data:", data)
+        try:
+            self.sock.sendall(encode_message(data))
+            print("[NETWORK] Sent data:", data)
+        except OSError as e:
+            if self.running:
+                print(f"[NETWORK] Send error: {e}")
 
     def listen(self):
         ## Listen for incoming data from the server.
@@ -39,6 +50,7 @@ class NetworkClient():
                 msg = self.sock.recv(4096)
                 if not msg:
                     self.running = False
+                    break
                 else:
                     buffer += msg
                     messages = decode_many(buffer)
@@ -56,10 +68,13 @@ class NetworkClient():
                             callback(message)
                     '''
                     buffer = b""
+            except socket.timeout:
+               continue
             except Exception as e:
-                print(f"[NETWORK] Error: {e}")
+                if self.running:
+                    print(f"[NETWORK] Error: {e}")
                 break
-        print("ending")
+            print("ending")
 
     def get_game_state(self):
         ## Get the current game state from the server.
@@ -82,8 +97,11 @@ class NetworkClient():
     def close(self):
         ## Shut down connection.
         self.running = False
-        #self.listener.join()
-        self.sock.shutdown(socket.SHUT_RDWR)
+        try:
+           self.sock.shutdown(socket.SHUT_RDWR)  # unblock recv
+        except OSError:
+            pass
         self.sock.close()
+        self.listener.join()
+
         print("[NETWORK] Connection closed.")
-        ## self.listener.join()

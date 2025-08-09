@@ -1,5 +1,6 @@
 ## Run the GUI and handle user input
 import pygame
+import time
 from ui import GameUI
 from network import NetworkClient
 from shared.constants import GEM_RADIUS
@@ -19,12 +20,22 @@ def main():
     dragging = False
     player_id = None
 
+    MOVE_SEND_INTERVAL = 1.0 / 45.0
+    last_move_send_ts = 0.0
+
+    dragged_gem_id = None
+    offset_x = 0
+    offset_y = 0
+
     ui = GameUI(screen)
     game_state = None
 
+    last_players = []
+    winner_ids = []
+
     while not quitting:
         while not running:
-            ui.render()
+            ui.render(game_state, player_id)
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     quitting = True
@@ -32,64 +43,95 @@ def main():
 
                 elif event.type == pygame.MOUSEBUTTONDOWN:
                     mouse_pos = pygame.mouse.get_pos()
-                    if ui.start_button.is_clicked(mouse_pos):
-                        running = True
-                        ui.state = "loading"
-                    
-                    elif ui.quit_button.is_clicked(mouse_pos):
-                        ui.state = "main"
+
+                    if ui.state == "main":
+                        if ui.start_button.is_clicked(mouse_pos):
+                            running = True
+                            ui.state = "loading"
+                            winner_ids = []
+                            if hasattr(ui, "winner_ids"):
+                                ui.winner_ids = []
+                        elif ui.quit_button.is_clicked(mouse_pos):
+                            ui.state = "main"
+
+                    elif ui.state == "end":
+                        if ui.quit_button.is_clicked(mouse_pos):
+                            ui.state = "main"
+                            winner_ids = []
+                            if hasattr(ui, "winner_ids"):
+                                ui.winner_ids = []
+                            game_state = None
 
         if quitting:
             break
 
         net = NetworkClient()
-        winner_ids = []
 
         counter = 0
+        sent_quit = False
         while running:
             if counter >= 30:
-                game_state = net.get_game_state()
+                msg = net.get_game_state()
                 counter = 0
+                if msg is not None:
+                    game_state = msg
+                    if game_state.get("type") == "state_update":
+                        last_players = game_state.get("players", [])
             counter += 1
 
             if game_state is not None:
-                if game_state["type"] == "assign_id":
+                t = game_state.get("type")
+
+                if t == "assign_id":
                     player_id = game_state["player_id"]
 
-                elif game_state["type"] == "game_start":
+                elif t == "game_start":
                     ui.state = "game"
                     ui.clock_start = pygame.time.get_ticks() / 1000
-                
-                elif game_state["type"] == "game_end":
+
+                elif t == "game_end":
+                    if last_players:
+                        best = max(p.get("score", 0) for p in last_players)
+                        winner_ids = [p["id"] for p in last_players if p.get("score", 0) == best]
+                    else:
+                        winner_ids = []
+
+                    try:
+                        ui.winner_ids = winner_ids
+                    except Exception:
+                        pass
+
+                    try:
+                        game_state["winner_ids"] = winner_ids
+                    except Exception:
+                        pass
+
                     ui.state = "end"
-                    ui.winner_ids = game_state.get("winner", [])
-                    #print("winner info: " + winner_ids)
-                    running = False
-                #print(winner_ids)
+                    running = False 
+
                 ui.render(game_state, player_id)
-            '''
-            dragged_gem_id = None
-            offset_x = 0
-            offset_y = 0
-            '''
+
             for event in pygame.event.get():
                 if event.type == pygame.QUIT: ## User clicked the window's close button
                     running = False
                     quitting = True
-                    net.send({
-                        'player_id': player_id,
-                        'action': {
-                            'type': 'quit',
-                            'gem_id': None,
-                            'position': None
-                        }
-                    })
+                    if not sent_quit and player_id is not None:
+                        sent_quit = True
+                        net.send({
+                            'player_id': player_id,
+                            'action': {
+                                'type': 'quit',
+                                'gem_id': None,
+                                'position': None
+                            }
+                        })
             
                 elif event.type == pygame.MOUSEBUTTONDOWN:
                     mouse_pos = pygame.mouse.get_pos()
 
-                    if ui.state == "game":
-                        for gem in game_state['gems']:
+                    if ui.state == "game" and game_state is not None:
+                        dragged_gem_id = None
+                        for gem in game_state.get('gems', []):
                             if gem_clicked(mouse_pos, gem):
                                 dragging = True
                                 dragged_gem_id = gem['id']
@@ -119,7 +161,8 @@ def main():
                     moving_x = mx + offset_x
                     moving_y = my + offset_y
                     ##game_state['gems'][dragged_gem_id]['position'] = moving_x, moving_y
-                    if player_id is not None and counter % 7 == 0:
+                    if player_id is not None and (time.time() - last_move_send_ts) >= MOVE_SEND_INTERVAL:
+                        last_move_send_ts = time.time()
                         net.send({
                             'player_id': player_id,
                             'action': {
@@ -142,6 +185,7 @@ def main():
                                     'drop_pos': drop_pos
                                 }
                             })
+                        dragged_gem_id = None
             
             pygame.display.flip()
             clock.tick(60) ## Limit the loop to run 60 times per second
