@@ -53,7 +53,7 @@ def main():
                                 ui.winner_ids = []
                         elif ui.quit_button.is_clicked(mouse_pos):
                             ui.state = "main"
-
+                    '''
                     elif ui.state == "end":
                         if ui.quit_button.is_clicked(mouse_pos):
                             ui.state = "main"
@@ -61,6 +61,7 @@ def main():
                             if hasattr(ui, "winner_ids"):
                                 ui.winner_ids = []
                             game_state = None
+                    '''
 
         if quitting:
             break

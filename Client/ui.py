@@ -93,7 +93,7 @@ class GameUI:
             text = "Game Over!"
         result = FONT.render(text, True, BLACK)
         self.screen.blit(result, (330, 200))
-        self.quit_button.draw(self.screen)
+        ##self.quit_button.draw(self.screen)
         pygame.display.flip()
     
     def render(self, game_state = None, player_id = None):
@@ -122,9 +122,10 @@ class GameUI:
                 self.state = "game"
                 self.clock_start = pygame.time.get_ticks() / 1000
                 return "restart_game"
-            '''
+            
             if self.quit_button.is_clicked(mouse_pos):
                 self.state = "main"
                 return "quit_to_main"
+            '''
 
         return None

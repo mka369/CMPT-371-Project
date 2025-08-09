@@ -3,6 +3,7 @@ import os
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
 ## Handle network requests
+import time
 import socket
 import threading
 from game import Game
@@ -64,6 +65,7 @@ def wait_for_clients(game):
             daemon=True
         ).start()
 
+    time.sleep(1)
     print("[SERVER] Minimum players reached. Starting game.")
     game.start(clients)
 

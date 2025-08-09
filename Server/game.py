@@ -23,8 +23,28 @@ class Game:
             Gem(id=6, position=(550, 110)),
             Gem(id=7, position=(580, 200)),
             Gem(id=8, position=(460, 150)),
-            Gem(id=9, position=(620, 250))
-            ]
+            Gem(id=9, position=(620, 250)),
+            Gem(id=10, position=(130, 180)),
+            Gem(id=11, position=(170, 250)),
+            Gem(id=12, position=(240, 120)),
+            Gem(id=13, position=(280, 260)),
+            Gem(id=14, position=(340, 140)),
+            Gem(id=15, position=(370, 240)),
+            Gem(id=16, position=(430, 120)),
+            Gem(id=17, position=(520, 140)),
+            Gem(id=18, position=(560, 240)),
+            Gem(id=19, position=(610, 150)),
+            Gem(id=20, position=(150, 130)),
+            Gem(id=21, position=(220, 180)),
+            Gem(id=22, position=(260, 230)),
+            Gem(id=23, position=(320, 170)),
+            Gem(id=24, position=(360, 280)),
+            Gem(id=25, position=(400, 170)),
+            Gem(id=26, position=(450, 260)),
+            Gem(id=27, position=(500, 200)),
+            Gem(id=28, position=(570, 270)),
+            Gem(id=29, position=(620, 200)),
+        ]
         self.game_over = False
         self.game_lock = threading.Lock()
 
