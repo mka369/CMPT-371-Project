@@ -35,6 +35,7 @@ class GameUI:
         self.state = "main"
         self.clock_start = None
         self.duration = 30
+        self.winner_ids = []
 
         self.start_button = Button("Start Game", (280, 250), (200, 60))
         ## self.restart_button = Button("Restart", (250, 300), (150, 50))
@@ -81,8 +82,10 @@ class GameUI:
         
         pygame.display.flip()
 
-    def draw_end_screen(self, winner_ids):
+    def draw_end_screen(self):
         self.screen.fill(WHITE)
+        winner_ids = self.winner_ids
+        #print(self.winner_ids)
         if winner_ids:
             names = ", ".join([f"P{id}" for id in winner_ids])
             text = f"Winner: {names}!"
@@ -93,7 +96,7 @@ class GameUI:
         self.quit_button.draw(self.screen)
         pygame.display.flip()
     
-    def render(self, game_state = None, player_id = None, winner_ids = None):
+    def render(self, game_state = None, player_id = None):
         if self.state == "main":
             self.draw_main_screen()
         elif self.state == "loading":
@@ -101,7 +104,7 @@ class GameUI:
         elif self.state == "game":
             self.draw_game_screen(game_state, player_id)
         elif self.state == "end":
-            self.draw_end_screen(winner_ids)
+            self.draw_end_screen()
 
     def button_click(self, mouse_pos):
         if self.state == "main":

@@ -55,11 +55,16 @@ class Game:
                 self.game_over = True
                 print("[GAME] Time's up. Game over.")
 
-        winner = max(self.players, key=lambda p: p.score)
+        winners = []
+        highscore = max(player.score for player in self.players)
+        for player in self.players:
+            if player.score == highscore:
+                winners.append(player.id)
+    
         end_msg = encode_message({
             "type": "game_end",
-            "winner": winner.name,
-            "score": winner.score
+            "winner": winners,
+            "score": highscore
         })
         for client in clients:
             try:

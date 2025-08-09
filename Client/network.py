@@ -59,6 +59,7 @@ class NetworkClient():
             except Exception as e:
                 print(f"[NETWORK] Error: {e}")
                 break
+        print("ending")
 
     def get_game_state(self):
         ## Get the current game state from the server.
@@ -81,7 +82,7 @@ class NetworkClient():
     def close(self):
         ## Shut down connection.
         self.running = False
-        self.listener.join()
+        #self.listener.join()
         self.sock.shutdown(socket.SHUT_RDWR)
         self.sock.close()
         print("[NETWORK] Connection closed.")

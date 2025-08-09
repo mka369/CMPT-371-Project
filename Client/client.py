@@ -62,10 +62,11 @@ def main():
                 
                 elif game_state["type"] == "game_end":
                     ui.state = "end"
-                    winner_ids = game_state.get("winner", [])
+                    ui.winner_ids = game_state.get("winner", [])
+                    #print("winner info: " + winner_ids)
                     running = False
-                
-                ui.render(game_state, player_id, winner_ids)
+                #print(winner_ids)
+                ui.render(game_state, player_id)
             '''
             dragged_gem_id = None
             offset_x = 0
