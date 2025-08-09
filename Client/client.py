@@ -67,17 +67,18 @@ def main():
 
         net = NetworkClient()
 
-        counter = 0
         sent_quit = False
         while running:
-            if counter >= 30:
+            msg = net.get_game_state()
+            latest = None
+            while msg is not None:
+                latest = msg
                 msg = net.get_game_state()
-                counter = 0
-                if msg is not None:
-                    game_state = msg
-                    if game_state.get("type") == "state_update":
-                        last_players = game_state.get("players", [])
-            counter += 1
+
+            if latest is not None:
+                game_state = latest
+                if game_state.get("type") == "state_update":
+                    last_players = game_state.get("players", [])
 
             if game_state is not None:
                 t = game_state.get("type")
