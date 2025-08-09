@@ -104,9 +104,8 @@ class Game:
     def process_input(self, player_id, action):
         ## Process player input and update game state.
         with self.game_lock:
-            action_type = action.get("type")
 
-            if action["type"] == "quit":
+            if action["type"] == "quit": ## Player quit the game.
                 for player in self.players:
                     if player.id == player_id:
                         player.has_quit = True
@@ -114,20 +113,20 @@ class Game:
                         break
                 return
 
-            if action["type"] == "drag":
+            if action["type"] == "drag": ## Player dragging a gem.
                 print(f"[GAME] Player {player_id} dragging gem {action['gem_id']}")
                 for gem in self.gems:
                     if gem.id == action["gem_id"] and gem.owner_id is None:
-                        gem.owner_id = player_id
+                        gem.owner_id = player_id ## Lock the gem to the player.
                         break
 
-            elif action["type"] == "move":
+            elif action["type"] == "move": ## Player moving a gem.
                 print(f"[GAME] Player {player_id} moving gem {action['gem_id']} to {action['position']}")
                 for gem in self.gems:
                     if gem.id == action["gem_id"] and gem.owner_id == player_id and not gem.is_collected:
-                        gem.position = tuple(action["position"])       
+                        gem.position = tuple(action["position"]) ## Update gem position.
                         
-                        for player in self.players:
+                        for player in self.players: ## Check if the gem is dropped in a player's base.
                             if player.id == player_id:
                                 px, py, pw, ph = player.base
                                 gx, gy = gem.position
@@ -136,13 +135,13 @@ class Game:
                                     player.score += 1
                                     break
 
-            elif action["type"] == "drop":
+            elif action["type"] == "drop": ## Player dropping a gem.
                 print(f"[GAME] Player {player_id} dropping gem {action['gem_id']} at {action['drop_pos']}")
                 for gem in self.gems:
                     if gem.id == action["gem_id"] and gem.owner_id == player_id and not gem.is_collected:
                         gem.position = tuple(action["drop_pos"])
                         
-                        for player in self.players: ## Allow player to drop gems in other players' bases.
+                        for player in self.players: ## Check if the gem is dropped in a player's base.
                             px, py, pw, ph = player.base
                             gx, gy = gem.position
                             if px <= gx <= px + pw and py <= gy <= py + ph:
@@ -150,7 +149,7 @@ class Game:
                                 player.score += 1
                                 break
 
-                        ## Reset gem if not dropped in a base.
+                        ## Unlock gem if not dropped in a base.
                         if not gem.is_collected:
                             gem.owner_id = None
                             break

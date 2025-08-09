@@ -11,8 +11,6 @@ from shared.constants import SERVER_PORT, SERVER_ADDRESS
 class NetworkClient():
     def __init__(self, host=SERVER_ADDRESS, port=SERVER_PORT):
         ## Initialize the network client with the server address.
-        ## TODO: Make sure we don't have any unnecessary fields.
-
         self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
         try:
@@ -55,18 +53,7 @@ class NetworkClient():
                     buffer += msg
                     messages = decode_many(buffer)
                     for message in messages:
-                        print("[NETWORK] Received message:", message)
                         self.game_states.append(message)
-                        '''
-                        for callback in self.listeners:
-                            callback(message)
-                        '''
-                    '''
-                    for message in game_states:
-                        self.count += 1
-                        for callback in self.listeners:
-                            callback(message)
-                    '''
                     buffer = b""
             except socket.timeout:
                continue
@@ -74,21 +61,12 @@ class NetworkClient():
                 if self.running:
                     print(f"[NETWORK] Error: {e}")
                 break
-            print("ending")
 
     def get_game_state(self):
         ## Get the current game state from the server.
         if not self.game_states:
             return None
         game_state = self.game_states.pop(0)
-        '''
-        index = 0
-        if index < (self.count - 1):
-            game_state = self.game_states[index]
-            index += 1
-        else:
-            game_state = None
-        '''
         return game_state
     
     def on_message(self, callback):
@@ -98,7 +76,7 @@ class NetworkClient():
         ## Shut down connection.
         self.running = False
         try:
-           self.sock.shutdown(socket.SHUT_RDWR)  # unblock recv
+           self.sock.shutdown(socket.SHUT_RDWR)  # Unblock recv
         except OSError:
             pass
         self.sock.close()

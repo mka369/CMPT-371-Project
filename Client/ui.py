@@ -19,14 +19,14 @@ class Button:
         self.color = GRAY
         self.text_surface = FONT.render(text, True, BLACK)
 
-    def draw(self, screen):
+    def draw(self, screen): ## Draw a button on the screen.
         pygame.draw.rect(screen, self.color, self.rect)
         screen.blit( ## Place the text.
             self.text_surface,
             self.text_surface.get_rect(center=self.rect.center)
         )
     
-    def is_clicked(self, mouse_pos):
+    def is_clicked(self, mouse_pos): ## Check if the button is clicked.
         return self.rect.collidepoint(mouse_pos)
 
 class GameUI:
@@ -38,10 +38,9 @@ class GameUI:
         self.winner_ids = []
 
         self.start_button = Button("Start Game", (280, 250), (200, 60))
-        ## self.restart_button = Button("Restart", (250, 300), (150, 50))
         self.quit_button = Button("Quit", (320, 300), (150, 50))
 
-        self.draw_main_screen()
+        self.draw_main_screen() ## Draw the main screen initially.
     
     def draw_main_screen(self):
         self.screen.fill(WHITE)
@@ -85,7 +84,6 @@ class GameUI:
     def draw_end_screen(self):
         self.screen.fill(WHITE)
         winner_ids = self.winner_ids
-        #print(self.winner_ids)
         if winner_ids:
             names = ", ".join([f"P{id}" for id in winner_ids])
             text = f"Winner: {names}!"
@@ -93,7 +91,6 @@ class GameUI:
             text = "Game Over!"
         result = FONT.render(text, True, BLACK)
         self.screen.blit(result, (330, 200))
-        ##self.quit_button.draw(self.screen)
         pygame.display.flip()
     
     def render(self, game_state = None, player_id = None):
@@ -105,27 +102,5 @@ class GameUI:
             self.draw_game_screen(game_state, player_id)
         elif self.state == "end":
             self.draw_end_screen()
-
-    def button_click(self, mouse_pos):
-        if self.state == "main":
-            if self.start_button.is_clicked(mouse_pos):
-                self.state = "game"
-                self.clock_start = pygame.time.get_ticks() / 1000
-                return "start_game"
-        
-        elif self.state == "game":
-            return "play_game"
-        
-        elif self.state == "end":
-            '''
-            if self.restart_button.is_clicked(mouse_pos):
-                self.state = "game"
-                self.clock_start = pygame.time.get_ticks() / 1000
-                return "restart_game"
-            
-            if self.quit_button.is_clicked(mouse_pos):
-                self.state = "main"
-                return "quit_to_main"
-            '''
 
         return None
